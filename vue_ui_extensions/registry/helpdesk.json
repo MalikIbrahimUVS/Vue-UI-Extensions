@@ -1,0 +1,24 @@
+{
+	"app_name": "helpdesk",
+	"frontend_dir": "desk",
+	"src_subdir": "src",
+	"vite_config": "vite.config.js",
+	"frontend_route": "/helpdesk",
+	"tested_version": "1.26.2",
+	"output": {
+		"public_dir": "vue_ui_extensions/public/built/helpdesk/desk",
+		"base_url": "/assets/vue_ui_extensions/built/helpdesk/desk/",
+		"www_html": "vue_ui_extensions/www/helpdesk_extended/index.html"
+	},
+	"route": {
+		"to_route": "helpdesk_extended",
+		"from_routes": ["/helpdesk", "/helpdesk/<path:app_path>"]
+	},
+	"build_files": [
+		"index.html",
+		"tailwind.config.js",
+		"postcss.config.js",
+		"vite-helpers.js"
+	],
+	"copy_dirs": []
+}

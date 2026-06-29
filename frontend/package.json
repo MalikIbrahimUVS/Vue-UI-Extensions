@@ -1,0 +1,11 @@
+{
+	"name": "vue-ui-extensions-frontend",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"build": "node scripts/build-all.mjs"
+	},
+	"dependencies": {
+		"vite": "^5.4.10"
+	}
+}

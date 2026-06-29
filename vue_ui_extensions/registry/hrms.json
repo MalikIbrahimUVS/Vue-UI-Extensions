@@ -1,0 +1,25 @@
+{
+	"app_name": "hrms",
+	"frontend_dir": "frontend",
+	"src_subdir": "src",
+	"vite_config": "vite.config.js",
+	"frontend_route": "/hrms",
+	"tested_version": "16.10.1",
+	"output": {
+		"public_dir": "vue_ui_extensions/public/built/hrms/frontend",
+		"base_url": "/assets/vue_ui_extensions/built/hrms/frontend/",
+		"www_html": "vue_ui_extensions/www/hrms_extended.html"
+	},
+	"route": {
+		"to_route": "hrms_extended",
+		"from_routes": ["/hrms", "/hrms/<path:app_path>"]
+	},
+	"build_files": [
+		"index.html",
+		"tailwind.config.js",
+		"postcss.config.js",
+		"ionic.config.json",
+		"jsconfig.json"
+	],
+	"copy_dirs": ["public"]
+}
