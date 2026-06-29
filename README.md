@@ -1,123 +1,244 @@
 # Vue UI Extensions
 
-Portable Frappe app for **build-time `.vue` overrides** of official Vue SPAs (HRMS, Helpdesk, and more) without modifying upstream apps.
+> Upgrade-friendly customization for official Frappe Vue applications.
+
+Vue UI Extensions is an open-source Frappe app that lets you customize official Vue-based applications—such as **HRMS** and **Helpdesk**—without modifying or forking the upstream projects.
+
+Instead of maintaining a fork, simply override the Vue components you want, build once, and continue receiving upstream updates with a much simpler maintenance workflow.
+
+---
+
+## Why Vue UI Extensions?
+
+Frappe has an excellent customization story for traditional Desk applications through:
+
+- Client Scripts
+- Server Scripts
+- Hooks
+- Custom Fields
+- Custom Apps
+
+However, many newer Frappe products are built as standalone Vue applications.
+
+Examples include:
+
+- HRMS
+- Helpdesk
+- CRM
+- LMS
+- Drive
+- Gameplan
+
+These applications cannot be customized using traditional Desk customizations.
+
+Today, developers typically have three options:
+
+- Fork the application and maintain it forever
+- Modify upstream source files and lose changes during updates
+- Rebuild the frontend from scratch
+
+None of these approaches scale well.
+
+Vue UI Extensions fills this gap by providing an upgrade-friendly customization layer for Vue applications.
+
+---
+
+
+
+## Features
+
+- Override individual Vue components
+- No upstream source modifications
+- No long-lived forks
+- Upgrade-friendly workflow
+- Supports multiple Vue applications
+- Easy to extend for new Frappe Vue apps
+- MIT Licensed
+- Open Source
+
+---
+
+
+
+## How It Works
+
+Vue UI Extensions follows a simple convention.
+
+Mirror the upstream Vue component structure inside your custom app:
+
+```text
+vue_ui_extensions/
+└── extensions/
+    └── hrms/
+        └── overrides/
+            └── components/
+                └── CheckInPanel.vue
+```
+
+During the build process the application:
+
+1. Copies the target application's frontend into a temporary workspace.
+2. Applies your override files.
+3. Builds the application using the original Vite configuration.
+4. Serves the customized frontend while leaving the upstream project untouched.
+
+Only your override files are maintained.
+
+---
+
+
+
+## Supported Applications
+
+Current support:
+
+- HRMS
+- Helpdesk
+
+Planned support:
+
+- CRM
+- LMS
+- Drive
+- Additional Vue-based Frappe applications
+
+---
+
+
+
+## Why Not Fork?
+
+
+| Approach              | Upgrade Friendly | Easy to Maintain |
+| --------------------- | ---------------- | ---------------- |
+| Fork the application  | ❌                | ❌                |
+| Modify upstream files | ❌                | ❌                |
+| Rewrite the frontend  | ❌                | ❌                |
+| Vue UI Extensions     | ✅                | ✅                |
+
+
+---
+
+
 
 ## Requirements
 
-- Frappe v16+ (tested on v16.24)
+- Frappe v16+
 - Python 3.14+
-- Node 18+ and Yarn
-- Target Vue apps installed on the same bench (e.g. `hrms`, `helpdesk`)
+- Node.js 18+
+- Yarn
+- Target Vue application installed (HRMS, Helpdesk, etc.)
 
-## Install
+---
+
+
+
+## Installation
 
 ```bash
-cd ~/frappe-bench-experiments   # or your bench
-bench get-app <path-or-repo> vue_ui_extensions
+bench get-app https://github.com/usman8786/Vue-UI-Extensions.git
 bench --site <site> install-app vue_ui_extensions
 ```
 
-Install `vue_ui_extensions` **after** the target apps so `website_route_rules` take effect.
+Install Vue UI Extensions after installing the target applications.
 
-## Override convention
+---
 
-Mirror the upstream `src/` path under:
 
+
+## Override Convention
+
+Mirror the upstream `src/` structure.
+
+Example:
+
+```text
+extensions/helpdesk/overrides/components/layouts/Sidebar.vue
 ```
-vue_ui_extensions/extensions/<target_app>/overrides/
+
+replaces
+
+```text
+helpdesk/desk/src/components/layouts/Sidebar.vue
 ```
 
-Examples:
+Likewise,
 
-| Target | Override file | Replaces |
-|--------|---------------|----------|
-| helpdesk | `extensions/helpdesk/overrides/components/layouts/Sidebar.vue` | `helpdesk/desk/src/components/layouts/Sidebar.vue` |
-| hrms | `extensions/hrms/overrides/components/CheckInPanel.vue` | `hrms/frontend/src/components/CheckInPanel.vue` |
+```text
+extensions/hrms/overrides/components/CheckInPanel.vue
+```
+
+replaces
+
+```text
+hrms/frontend/src/components/CheckInPanel.vue
+```
+
+---
+
+
 
 ## Build
-
-After adding or changing override files:
 
 ```bash
 bench build --app vue_ui_extensions
 ```
 
-You will be prompted to build **helpdesk**, **hrms**, or **all** (default). Non-interactive builds (CI) build all targets with overrides unless you set:
-
-```bash
-# Single target
-VUE_EXT_TARGET=helpdesk bench build --app vue_ui_extensions
-
-# Multiple targets
-VUE_EXT_TARGETS=helpdesk,hrms bench build --app vue_ui_extensions
-
-# Skip prompt and build all
-VUE_EXT_BUILD_ALL=1 bench build --app vue_ui_extensions
-```
-
-Then clear website cache so routing picks up changes:
+After building:
 
 ```bash
 bench --site <site> clear-cache
 ```
 
-If changes still do not appear, hard-reload the browser (Ctrl+Shift+R) and confirm the page loads assets from `/assets/vue_ui_extensions/built/...` (not `/assets/helpdesk/desk/...`).
+Refresh your browser and your customized Vue application is ready.
 
-This runs the `after_build` hook, which:
+---
 
-1. Discovers installed targets with override files
-2. Copies upstream frontend into `.tmp/` (upstream never modified)
-3. Merges your `overrides/` on top of `src/`
-4. Runs `vite build` using the target app's `node_modules`
-5. Writes assets to `vue_ui_extensions/public/built/<target>/`
-6. Generates Jinja www entry pages with boot data
 
-Build a single target:
 
-```bash
-bench execute vue_ui_extensions.build.build_target --args '["hrms"]'
-```
+## Upgrade Workflow
 
-## Serving
+When a new version of HRMS or Helpdesk is released:
 
-`website_route_rules` in `hooks.py` route `/hrms` and `/helpdesk` to:
+1. Update your applications.
+2. Compare your overridden components with upstream changes.
+3. Rebuild Vue UI Extensions.
+4. Verify your customizations.
 
-- `www/hrms_extended.html` + `hrms_extended.py`
-- `www/helpdesk_extended/index.html` + `index.py`
+No fork maintenance.
+No merge conflicts.
+Only the components you customized.
 
-Boot context is delegated to the upstream app handlers.
+---
 
-## Registry
 
-Target apps are defined in `vue_ui_extensions/registry/*.json`. Add a new JSON file to support another Vue app (CRM, etc.).
 
-## Upgrade workflow
+## Roadmap
 
-1. `bench update --pull` on target apps
-2. Update `VERSIONS.txt` / registry `tested_version`
-3. Diff your override files against upstream `src/` changes
-4. `bench build --app vue_ui_extensions`
-5. Smoke-test `/hrms` and `/helpdesk`
+- Support additional official Vue applications
+- Better developer tooling
+- Improved build performance
+- Documentation and examples
+- Community-contributed extensions
 
-## Uninstall
+---
 
-Uninstalling `vue_ui_extensions` removes route hijacking; upstream SPAs serve from their original `www/` entries.
 
-## Experiments bench
 
-This app was developed on `~/frappe-bench-experiments` (port **8001**, isolated from production `~/frappe-bench`).
+## Contributing
 
-```bash
-# Start Redis for experiments bench (if not running)
-redis-server ~/frappe-bench-experiments/config/redis_cache.conf --daemonize yes
-redis-server ~/frappe-bench-experiments/config/redis_queue.conf --daemonize yes
+Contributions are welcome.
 
-bench start
-# http://experiments.localhost:8001/hrms
-# http://experiments.localhost:8001/helpdesk
-```
+Whether it's bug reports, feature requests, documentation improvements, or support for additional Vue applications, every contribution helps make frontend customization easier for the Frappe ecosystem.
 
-## MVP proofs (this repo)
+---
 
-- **Helpdesk:** sidebar Search label → `Search (Vue Ext)`
-- **HRMS:** check-in panel greeting → `Hey, {name} 👋 [Vue Ext]`
+
+
+## License
+
+MIT License.
+
+Free to use in personal and commercial projects.
+
+If this project helps you, consider giving it a ⭐ on GitHub.
