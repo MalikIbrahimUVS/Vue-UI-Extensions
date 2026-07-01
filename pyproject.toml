@@ -4,7 +4,7 @@ authors = [
     { name = "Developer", email = "dev@example.com"}
 ]
 description = "Portable Vue component overrides for Frappe UI apps"
-requires-python = ">=3.14"
+requires-python = ">=3.12"
 readme = "README.md"
 dynamic = ["version"]
 dependencies = [
