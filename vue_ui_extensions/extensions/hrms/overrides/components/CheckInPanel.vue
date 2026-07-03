@@ -1,12 +1,14 @@
 <template>
 	<div class="flex flex-col bg-white rounded w-full py-6 px-4 border-none">
 		<h2 class="text-lg font-bold text-gray-900">
-			{{ __("Hey, {0} 👋 [Vue Ext]", [employee?.data?.first_name]) }}
+			{{ __("Hey, {0} 👋 [Vue By Ibrahim]", [employee?.data?.first_name]) }}
 		</h2>
 
 		<template v-if="settings.data?.allow_employee_checkin_from_mobile_app">
 			<div class="font-medium text-sm text-gray-500 mt-1.5" v-if="lastLog">
-				<span>{{ __("Last {0} was at {1}", [__(lastLogType), formatTimestamp(lastLog.time)]) }}</span>
+				<span>{{
+					__("Last {0} was at {1}", [__(lastLogType), formatTimestamp(lastLog.time)])
+				}}</span>
 				<span class="whitespace-pre"> &middot; </span>
 				<router-link :to="{ name: 'EmployeeCheckinListView' }" v-slot="{ navigate }">
 					<span @click="navigate" class="underline">View List</span>
@@ -19,7 +21,9 @@
 			>
 				<template #prefix>
 					<FeatherIcon
-						:name="nextAction.action === 'IN' ? 'arrow-right-circle' : 'arrow-left-circle'"
+						:name="
+							nextAction.action === 'IN' ? 'arrow-right-circle' : 'arrow-left-circle'
+						"
 						class="w-4"
 					/>
 				</template>
@@ -69,7 +73,12 @@
 				</div>
 			</template>
 
-			<Button :loading="checkins.insert.loading" variant="solid" class="w-full py-5 text-sm disabled:bg-gray-700" @click="submitLog(nextAction.action)">
+			<Button
+				:loading="checkins.insert.loading"
+				variant="solid"
+				class="w-full py-5 text-sm disabled:bg-gray-700"
+				@click="submitLog(nextAction.action)"
+			>
 				{{ __("Confirm {0}", [nextAction.label]) }}
 			</Button>
 		</div>
@@ -77,23 +86,26 @@
 </template>
 
 <script setup>
-import { createListResource, toast, FeatherIcon } from "frappe-ui"
-import { computed, inject, ref, onMounted, onBeforeUnmount } from "vue"
-import { IonModal, modalController } from "@ionic/vue"
+import { createResource, createListResource, toast, FeatherIcon } from "frappe-ui";
+import { computed, inject, ref, onMounted, onBeforeUnmount } from "vue";
+import { IonModal, modalController } from "@ionic/vue";
 
-import { formatTimestamp } from "@/utils/formatters"
-import { settings } from "@/data/settings"
+import { formatTimestamp } from "@/utils/formatters";
+const settings = createResource({
+	url: "hrms.api.get_hr_settings",
+	auto: true,
+});
 
-const DOCTYPE = "Employee Checkin"
+const DOCTYPE = "Employee Checkin";
 
-const socket = inject("$socket")
-const employee = inject("$employee")
-const dayjs = inject("$dayjs")
-const __ = inject("$translate")
-const checkinTimestamp = ref(null)
-const latitude = ref(0)
-const longitude = ref(0)
-const locationStatus = ref("")
+const socket = inject("$socket");
+const employee = inject("$employee");
+const dayjs = inject("$dayjs");
+const __ = inject("$translate");
+const checkinTimestamp = ref(null);
+const latitude = ref(0);
+const longitude = ref(0);
+const locationStatus = ref("");
 
 const checkins = createListResource({
 	doctype: DOCTYPE,
@@ -102,58 +114,58 @@ const checkins = createListResource({
 		employee: employee.data.name,
 	},
 	orderBy: "time desc",
-})
-checkins.reload()
+});
+checkins.reload();
 
 const lastLog = computed(() => {
-	if (checkins.list.loading || !checkins.data) return {}
-	return checkins.data[0]
-})
+	if (checkins.list.loading || !checkins.data) return {};
+	return checkins.data[0];
+});
 
 const lastLogType = computed(() => {
-	return lastLog?.value?.log_type === "IN" ? "check-in" : "check-out"
-})
+	return lastLog?.value?.log_type === "IN" ? "check-in" : "check-out";
+});
 
 const nextAction = computed(() => {
 	return lastLog?.value?.log_type === "IN"
 		? { action: "OUT", label: __("Check Out") }
-		: { action: "IN", label: __("Check In") }
-})
+		: { action: "IN", label: __("Check In") };
+});
 
 function handleLocationSuccess(position) {
-	latitude.value = position.coords.latitude
-	longitude.value = position.coords.longitude
+	latitude.value = position.coords.latitude;
+	longitude.value = position.coords.longitude;
 
 	locationStatus.value = [
 		__("Latitude: {0}°", [Number(latitude.value).toFixed(5)]),
 		__("Longitude: {0}°", [Number(longitude.value).toFixed(5)]),
-	].join(", ")
+	].join(", ");
 }
 
 function handleLocationError(error) {
-	locationStatus.value = "Unable to retrieve your location"
-	if (error) locationStatus.value += `: ERROR(${error.code}): ${error.message}`
+	locationStatus.value = "Unable to retrieve your location";
+	if (error) locationStatus.value += `: ERROR(${error.code}): ${error.message}`;
 }
 
 const fetchLocation = () => {
 	if (!navigator.geolocation) {
-		locationStatus.value = __("Geolocation is not supported by your current browser")
+		locationStatus.value = __("Geolocation is not supported by your current browser");
 	} else {
-		locationStatus.value = __("Locating...")
-		navigator.geolocation.getCurrentPosition(handleLocationSuccess, handleLocationError)
+		locationStatus.value = __("Locating...");
+		navigator.geolocation.getCurrentPosition(handleLocationSuccess, handleLocationError);
 	}
-}
+};
 
 const handleEmployeeCheckin = () => {
-	checkinTimestamp.value = dayjs().format("YYYY-MM-DD HH:mm:ss")
+	checkinTimestamp.value = dayjs().format("YYYY-MM-DD HH:mm:ss");
 
 	if (settings.data?.allow_geolocation_tracking) {
-		fetchLocation()
+		fetchLocation();
 	}
-}
+};
 
 const submitLog = (logType) => {
-	const actionLabel = logType === "IN" ? __("Check-in") : __("Check-out")
+	const actionLabel = logType === "IN" ? __("Check-in") : __("Check-out");
 
 	checkins.insert.submit(
 		{
@@ -165,17 +177,17 @@ const submitLog = (logType) => {
 		},
 		{
 			onSuccess() {
-				modalController.dismiss()
+				modalController.dismiss();
 				toast({
 					title: __("Success"),
 					text: __("{0} successful!", [actionLabel]),
 					icon: "check-circle",
 					position: "bottom-center",
 					iconClasses: "text-green-500",
-				})
+				});
 			},
 			onError(error) {
-				let messages = error.messages || []
+				let messages = error.messages || [];
 
 				for (const message of messages) {
 					toast({
@@ -184,24 +196,24 @@ const submitLog = (logType) => {
 						icon: "alert-circle",
 						position: "bottom-center",
 						iconClasses: "text-red-500",
-					})
+					});
 				}
 			},
-		}
-	)
-}
+		},
+	);
+};
 
 onMounted(() => {
-	socket.emit("doctype_subscribe", DOCTYPE)
+	socket.emit("doctype_subscribe", DOCTYPE);
 	socket.on("list_update", (data) => {
 		if (data.doctype == DOCTYPE) {
-			checkins.reload()
+			checkins.reload();
 		}
-	})
-})
+	});
+});
 
 onBeforeUnmount(() => {
-	socket.emit("doctype_unsubscribe", DOCTYPE)
-	socket.off("list_update")
-})
+	socket.emit("doctype_unsubscribe", DOCTYPE);
+	socket.off("list_update");
+});
 </script>

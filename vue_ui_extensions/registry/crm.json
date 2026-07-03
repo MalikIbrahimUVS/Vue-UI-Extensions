@@ -1,0 +1,25 @@
+{
+	"app_name": "crm",
+	"frontend_dir": "frontend",
+	"src_subdir": "src",
+	"vite_config": "vite.config.js",
+	"frontend_route": "/crm",
+	"tested_version": "1.50.1",
+	"output": {
+		"public_dir": "vue_ui_extensions/public/built/crm/frontend",
+		"base_url": "/assets/vue_ui_extensions/built/crm/frontend/",
+		"www_html": "vue_ui_extensions/www/crm_extended.html"
+	},
+	"route": {
+		"to_route": "crm_extended",
+		"from_routes": ["/crm", "/crm/<path:app_path>"]
+	},
+	"build_files": [
+		"index.html",
+		"tailwind.config.js",
+		"postcss.config.js",
+		"vite.config.js",
+		"components.d.ts"
+	],
+	"copy_dirs": ["public"]
+}

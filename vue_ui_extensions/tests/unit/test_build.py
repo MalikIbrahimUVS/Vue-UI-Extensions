@@ -29,6 +29,11 @@ class TestRegistry(unittest.TestCase):
 		self.assertEqual(data["app_name"], "helpdesk")
 		self.assertEqual(data["frontend_dir"], "desk")
 
+	def test_load_crm_registry(self):
+		data = registry_module.load_registry("crm")
+		self.assertEqual(data["app_name"], "crm")
+		self.assertEqual(data["frontend_dir"], "frontend")
+
 	def test_has_overrides_true_for_mvp_targets(self):
 		self.assertTrue(registry_module.has_overrides("hrms"))
 		self.assertTrue(registry_module.has_overrides("helpdesk"))
@@ -50,6 +55,11 @@ class TestRegistry(unittest.TestCase):
 		from vue_ui_extensions.website import resolve_extension_path
 
 		self.assertEqual(resolve_extension_path("helpdesk/home"), "helpdesk_extended")
+
+	def test_resolve_extension_path_for_crm(self):
+		from vue_ui_extensions.website import resolve_extension_path
+
+		self.assertEqual(resolve_extension_path("crm/leads"), "crm_extended")
 
 
 class TestBuild(unittest.TestCase):
@@ -80,44 +90,44 @@ class TestBuild(unittest.TestCase):
 		mock_echo.assert_called()
 
 	def test_select_build_targets_from_env(self):
-		targets = [{"app_name": "hrms"}, {"app_name": "helpdesk"}]
-		env = {"VUE_EXT_TARGET": "helpdesk", "VUE_EXT_TARGETS": "", "VUE_EXT_BUILD_ALL": ""}
+		targets = [{"app_name": "hrms"}, {"app_name": "helpdesk"}, {"app_name": "crm"}]
+		env = {"VUE_EXT_TARGET": "crm", "VUE_EXT_TARGETS": "", "VUE_EXT_BUILD_ALL": ""}
 		with patch.dict("os.environ", env, clear=False):
 			selected = select_build_targets(targets)
-		self.assertEqual([t["app_name"] for t in selected], ["helpdesk"])
+		self.assertEqual([t["app_name"] for t in selected], ["crm"])
 
 	def test_select_build_targets_all_from_env(self):
-		targets = [{"app_name": "hrms"}, {"app_name": "helpdesk"}]
+		targets = [{"app_name": "hrms"}, {"app_name": "helpdesk"}, {"app_name": "crm"}]
 		env = {"VUE_EXT_TARGETS": "all", "VUE_EXT_TARGET": "", "VUE_EXT_BUILD_ALL": ""}
 		with patch.dict("os.environ", env, clear=False):
 			selected = select_build_targets(targets)
-		self.assertEqual(len(selected), 2)
+		self.assertEqual(len(selected), 3)
 
 	@patch("sys.stdin.isatty", return_value=False)
 	def test_select_build_targets_non_tty_builds_all(self, _mock_isatty):
-		targets = [{"app_name": "hrms"}, {"app_name": "helpdesk"}]
+		targets = [{"app_name": "hrms"}, {"app_name": "helpdesk"}, {"app_name": "crm"}]
 		env = {"VUE_EXT_TARGETS": "", "VUE_EXT_TARGET": "", "VUE_EXT_BUILD_ALL": ""}
 		with patch.dict("os.environ", env, clear=False):
 			selected = select_build_targets(targets)
-		self.assertEqual(len(selected), 2)
+		self.assertEqual(len(selected), 3)
 
 	@patch("vue_ui_extensions.build.click.prompt", return_value="1")
 	@patch("sys.stdin.isatty", return_value=True)
 	def test_select_build_targets_by_number(self, _mock_isatty, _mock_prompt):
-		targets = [{"app_name": "helpdesk"}, {"app_name": "hrms"}]
+		targets = [{"app_name": "helpdesk"}, {"app_name": "hrms"}, {"app_name": "crm"}]
 		env = {"VUE_EXT_TARGETS": "", "VUE_EXT_TARGET": "", "VUE_EXT_BUILD_ALL": ""}
 		with patch.dict("os.environ", env, clear=False):
 			selected = select_build_targets(targets)
 		self.assertEqual([t["app_name"] for t in selected], ["helpdesk"])
 
-	@patch("vue_ui_extensions.build.click.prompt", return_value="3")
+	@patch("vue_ui_extensions.build.click.prompt", return_value="4")
 	@patch("sys.stdin.isatty", return_value=True)
 	def test_select_build_targets_by_number_all(self, _mock_isatty, _mock_prompt):
-		targets = [{"app_name": "helpdesk"}, {"app_name": "hrms"}]
+		targets = [{"app_name": "helpdesk"}, {"app_name": "hrms"}, {"app_name": "crm"}]
 		env = {"VUE_EXT_TARGETS": "", "VUE_EXT_TARGET": "", "VUE_EXT_BUILD_ALL": ""}
 		with patch.dict("os.environ", env, clear=False):
 			selected = select_build_targets(targets)
-		self.assertEqual(len(selected), 2)
+		self.assertEqual(len(selected), 3)
 
 
 if __name__ == "__main__":

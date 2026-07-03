@@ -139,6 +139,17 @@ export function injectHelpdeskBoot(html) {
 	return html.replace("</body>", `${bootScript}\n  </body>`);
 }
 
+export function injectCrmBoot(html) {
+	if (html.includes("{% for key in boot %}")) return html;
+	const bootScript = `
+    <script>
+      {% for key in boot %}
+      window["{{ key }}"] = {{ boot[key] | tojson }};
+      {% endfor %}
+    </script>`;
+	return html.replace("</body>", `${bootScript}\n  </body>`);
+}
+
 export async function writeWwwHtml(registry, builtIndexPath) {
 	let html = await fs.readFile(builtIndexPath, "utf8");
 	const base = registry.output.base_url;
@@ -151,6 +162,8 @@ export async function writeWwwHtml(registry, builtIndexPath) {
 		html = injectHrmsBoot(html);
 	} else if (registry.app_name === "helpdesk") {
 		html = injectHelpdeskBoot(html);
+	} else if (registry.app_name === "crm") {
+		html = injectCrmBoot(html);
 	}
 
 	const wwwPath = path.join(EXT_APP_ROOT, registry.output.www_html);

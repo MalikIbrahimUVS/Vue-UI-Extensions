@@ -7,6 +7,7 @@ from vue_ui_extensions.registry import has_overrides
 EXTENSION_TARGETS = {
 	"helpdesk": "helpdesk_extended",
 	"hrms": "hrms_extended",
+	"crm": "crm_extended",
 }
 
 

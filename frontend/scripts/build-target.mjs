@@ -35,6 +35,17 @@ async function prepareFrontendWorkspace(registry) {
 	const nodeModulesDest = path.join(workspace, "node_modules");
 	await fs.symlink(nodeModulesSrc, nodeModulesDest, "dir");
 
+	// For yarn-workspace apps, packages are hoisted to the app root's node_modules.
+	// Symlink it one level up so Node resolution can traverse up and find them.
+	const appRoot = path.join(BENCH_PATH, "apps", appName);
+	const appRootNodeModules = path.join(appRoot, "node_modules");
+	if (appRoot !== targetFrontend && (await pathExists(appRootNodeModules))) {
+		const parentNodeModulesDest = path.join(path.dirname(workspace), "node_modules");
+		if (!(await pathExists(parentNodeModulesDest))) {
+			await fs.symlink(appRootNodeModules, parentNodeModulesDest, "dir");
+		}
+	}
+
 	const mergedSrc = path.join(workspace, registry.src_subdir);
 	if (await pathExists(overridesDir)) {
 		await copyDir(overridesDir, mergedSrc);
@@ -44,6 +55,14 @@ async function prepareFrontendWorkspace(registry) {
 	const sitesLink = path.join(EXT_APP_ROOT, "sites");
 	if (!(await pathExists(sitesLink))) {
 		await fs.symlink(path.join(BENCH_PATH, "sites"), sitesLink, "dir");
+	}
+
+	// CRM telemetry.ts resolves ../../../frappe/frappe/public from frontend/src/
+	if (appName === "crm") {
+		const frappeTmpLink = path.join(EXT_APP_ROOT, ".tmp", "frappe");
+		if (!(await pathExists(frappeTmpLink))) {
+			await fs.symlink(path.join(BENCH_PATH, "apps", "frappe"), frappeTmpLink, "dir");
+		}
 	}
 
 	console.log(`Workspace ready in ${((Date.now() - started) / 1000).toFixed(1)}s`);

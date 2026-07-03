@@ -121,6 +121,8 @@ website_route_rules = [
 	{"from_route": "/hrms", "to_route": "hrms_extended"},
 	{"from_route": "/helpdesk/<path:app_path>", "to_route": "helpdesk_extended"},
 	{"from_route": "/helpdesk", "to_route": "helpdesk_extended"},
+	{"from_route": "/crm/<path:app_path>", "to_route": "crm_extended"},
+	{"from_route": "/crm", "to_route": "crm_extended"},
 ]
 
 website_path_resolver = ["vue_ui_extensions.website.resolve_extension_path"]
